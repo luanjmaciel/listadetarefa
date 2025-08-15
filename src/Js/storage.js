@@ -7,7 +7,7 @@
 
 import { logInfo, logError } from './logger.js';
 // CORREÇÃO: Importa as funções getTasks e getProjects
-import { getTasks, getProjects } from './model.js';
+import { getTasks, getProjects, setTasks, setProjects } from './model.js';
 
 const TASKS_KEY = 'tasks';
 const PROJECTS_KEY = 'projects';
@@ -32,21 +32,26 @@ export function salvaDados() {
 }
 
 /**
- * Carrega as tarefas e projetos do localStorage.
- * @returns {{tasks: Array, projects: Array}} Os dados carregados.
+ * Carrega as tarefas e projetos do localStorage e popula o model.
  */
 export function carregaDados() {
     try {
         const tarefasSalvas = localStorage.getItem(TASKS_KEY);
         const projetosSalvos = localStorage.getItem(PROJECTS_KEY);
-        
+
         const tarefas = tarefasSalvas ? JSON.parse(tarefasSalvas) : [];
         const projetos = projetosSalvos ? JSON.parse(projetosSalvos) : [];
-        
-        logInfo('Dados carregados do localStorage.');
-        return { tasks: tarefas, projects: projetos };
+
+        // Popula o model com os dados carregados
+        setTasks(tarefas);
+        setProjects(projetos);
+
+        logInfo('Dados carregados do localStorage e aplicados ao model.');
     } catch (e) {
         logError('Erro ao carregar dados do localStorage:', e);
-        return { tasks: [], projects: [] };
+        setTasks([]);
+        setProjects([]);
     }
 }
+
+// Nenhuma alteração necessária aqui.

@@ -1,5 +1,3 @@
-// src/js/ui.js
-
 /**
  * @fileoverview Módulo para gerenciar a interface de usuário (UI).
  * @module ui
@@ -10,17 +8,17 @@ import {
     atualizaTarefa,
     excluiTarefa,
     criaProjeto,
-    atualizaProjeto, // Novo: importando a função de atualização de projeto
+    atualizaProjeto,
     excluiProjeto,
     defineProjetoAtivo,
     getTarefasDoProjeto,
     getTarefa,
     getProjeto,
     getProjects,
-    getTasks, // Novo: importando o getter de tasks
+    getTasks,
     getCurrentProjectId
 } from './model.js';
-import { salvaDados } from './storage.js';
+import { salvaDados, carregaDados } from './storage.js';
 import { logInfo, logWarn } from './logger.js';
 
 // Elementos do DOM
@@ -76,13 +74,31 @@ function criaElementoProjeto(projeto) {
     const item = document.createElement('div');
     item.className = `project-item ${projeto.cor}`;
     item.innerHTML = `
-        <span class="item-title" onclick="ui.defineProjetoAtivoNaUI(${projeto.id})">${projeto.nome}</span>
+        <span class="item-title">${projeto.nome}</span>
         <div class="item-actions">
-            <i class="fas fa-edit" onclick="ui.showProjectModal(${projeto.id})"></i>
-            <i class="fas fa-copy" onclick="ui.duplicaProjetoNaUI(${projeto.id})"></i>
-            <i class="fas fa-trash-alt" onclick="ui.excluiProjetoNaUI(${projeto.id})"></i>
+            <i class="fas fa-edit edit-btn"></i>
+            <i class="fas fa-copy copy-btn"></i>
+            <i class="fas fa-trash-alt trash-btn"></i>
         </div>
     `;
+
+    // Adiciona os event listeners diretamente no JavaScript
+    item.querySelector('.item-title').addEventListener('click', () => {
+        defineProjetoAtivoNaUI(projeto.id);
+    });
+
+    item.querySelector('.edit-btn').addEventListener('click', () => {
+        showProjectModal(projeto.id);
+    });
+
+    item.querySelector('.copy-btn').addEventListener('click', () => {
+        duplicaProjetoNaUI(projeto.id);
+    });
+
+    item.querySelector('.trash-btn').addEventListener('click', () => {
+        excluiProjetoNaUI(projeto.id);
+    });
+
     return item;
 }
 
@@ -145,14 +161,36 @@ function criaElementoTarefa(tarefa) {
     const completionClass = tarefa.concluida ? 'completed' : '';
     taskItem.className = `task-item ${tarefa.cor} ${completionClass}`;
     taskItem.innerHTML = `
-        <input type="checkbox" class="task-checkbox" ${tarefa.concluida ? 'checked' : ''} onclick="ui.toggleTaskCompletion(${tarefa.id}, event)">
-        <span class="item-title" onclick="ui.showPostIt(${tarefa.id})">${tarefa.titulo}</span>
+        <input type="checkbox" class="task-checkbox" ${tarefa.concluida ? 'checked' : ''}>
+        <span class="item-title">${tarefa.titulo}</span>
         <div class="item-actions">
-            <i class="fas fa-edit" onclick="ui.showTaskModal(${tarefa.id})"></i>
-            <i class="fas fa-copy" onclick="ui.duplicaTarefaNaUI(${tarefa.id})"></i>
-            <i class="fas fa-trash-alt" onclick="ui.excluiTarefaNaUI(${tarefa.id})"></i>
+            <i class="fas fa-edit edit-btn"></i>
+            <i class="fas fa-copy copy-btn"></i>
+            <i class="fas fa-trash-alt trash-btn"></i>
         </div>
     `;
+
+    // Adiciona os event listeners diretamente no JavaScript
+    taskItem.querySelector('.task-checkbox').addEventListener('click', (event) => {
+        toggleTaskCompletion(tarefa.id, event);
+    });
+
+    taskItem.querySelector('.item-title').addEventListener('click', () => {
+        showPostIt(tarefa.id);
+    });
+
+    taskItem.querySelector('.edit-btn').addEventListener('click', () => {
+        showTaskModal(tarefa.id);
+    });
+
+    taskItem.querySelector('.copy-btn').addEventListener('click', () => {
+        duplicaTarefaNaUI(tarefa.id);
+    });
+
+    taskItem.querySelector('.trash-btn').addEventListener('click', () => {
+        excluiTarefaNaUI(tarefa.id);
+    });
+
     return taskItem;
 }
 
@@ -275,7 +313,6 @@ export function saveTask() {
         criaTarefa(dadosTarefa);
         logInfo('Nova tarefa adicionada.');
     }
-    
     salvaDados(getTasks(), getProjects());
     renderizaTarefas();
     closeModal('taskModal');
@@ -352,17 +389,25 @@ export function saveProject() {
     }
     
     const dadosProjeto = { nome, cor };
+    let novoProjetoId = null;
 
     if (editingProjectId !== null) {
         atualizaProjeto(editingProjectId, dadosProjeto);
         logInfo(`Projeto ${editingProjectId} atualizado.`);
+        novoProjetoId = editingProjectId;
     } else {
-        criaProjeto(dadosProjeto);
+        const novoProjeto = criaProjeto(dadosProjeto);
         logInfo('Novo projeto adicionado.');
+        novoProjetoId = novoProjeto.id;
     }
-    
     salvaDados(getTasks(), getProjects());
     renderizaProjetos();
+    
+    if (getCurrentProjectId() !== novoProjetoId) {
+        defineProjetoAtivoNaUI(novoProjetoId);
+    } else {
+        renderizaTarefas();
+    }
     closeModal('projectModal');
 }
 
@@ -374,7 +419,7 @@ export function duplicaProjetoNaUI(projectId) {
     const projetoOriginal = getProjeto(projectId);
     if (projetoOriginal) {
         const novoProjeto = criaProjeto({ nome: `Cópia de ${projetoOriginal.nome}`, cor: projetoOriginal.cor });
-        const tarefasDoProjeto = getTarefasDoProjeto();
+        const tarefasDoProjeto = getTarefasDoProjeto(projectId);
         tarefasDoProjeto.forEach(tarefa => {
             const novosDados = {
                 titulo: tarefa.titulo,
@@ -447,7 +492,7 @@ export function setFilter(filter) {
     
     filterButtons.forEach(btn => {
         btn.classList.remove('active');
-        if (btn.textContent.toLowerCase().includes(filter)) {
+        if (btn.id.includes(filter)) {
             btn.classList.add('active');
         }
     });

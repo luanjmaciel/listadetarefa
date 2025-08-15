@@ -232,7 +232,7 @@ body {
 .post-it {
     position: absolute;
     width: 400px;
-    height: 550px;
+    height: 400px;
     padding: 30px;
     box-shadow: var(--shadow-postit);
     border-radius: 2px;

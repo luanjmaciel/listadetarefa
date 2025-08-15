@@ -23,6 +23,8 @@ let nextProjectId = 0;
  * @returns {object} A nova tarefa criada.
  */
 export function criaTarefa(dadosTarefa) {
+    // Cria uma nova tarefa com ID único, dados fornecidos, status não concluída e data de criação.
+    // Adiciona ao array de tarefas e retorna a nova tarefa.
     const novaTarefa = {
         id: nextTaskId++,
         ...dadosTarefa,
@@ -40,6 +42,7 @@ export function criaTarefa(dadosTarefa) {
  * @returns {boolean} Retorna true se a tarefa foi encontrada e atualizada.
  */
 export function atualizaTarefa(id, novosDados) {
+    // Procura a tarefa pelo ID e atualiza seus dados se encontrada.
     const index = tasks.findIndex(t => t.id === id);
     if (index > -1) {
         tasks[index] = { ...tasks[index], ...novosDados };
@@ -54,6 +57,7 @@ export function atualizaTarefa(id, novosDados) {
  * @returns {boolean} Retorna true se a tarefa foi excluída.
  */
 export function excluiTarefa(id) {
+    // Remove a tarefa do array pelo ID.
     const tarefaOriginal = tasks.length;
     tasks = tasks.filter(t => t.id !== id);
     return tasks.length < tarefaOriginal;
@@ -65,6 +69,7 @@ export function excluiTarefa(id) {
  * @returns {object|undefined} A tarefa encontrada ou undefined.
  */
 export function getTarefa(id) {
+    // Busca e retorna a tarefa com o ID fornecido.
     return tasks.find(t => t.id === id);
 }
 
@@ -73,6 +78,7 @@ export function getTarefa(id) {
  * @returns {Array<object>} Uma cópia das tarefas.
  */
 export function getTasks() {
+    // Retorna uma cópia do array de tarefas.
     return [...tasks];
 }
 
@@ -87,6 +93,8 @@ export function getTasks() {
  * @returns {object} O novo projeto criado.
  */
 export function criaProjeto(dadosProjeto) {
+    // Cria um novo projeto com ID único e dados fornecidos.
+    // Adiciona ao array de projetos e retorna o novo projeto.
     const novoProjeto = {
         id: nextProjectId++,
         ...dadosProjeto
@@ -102,6 +110,7 @@ export function criaProjeto(dadosProjeto) {
  * @returns {boolean} Retorna true se o projeto foi encontrado e atualizado.
  */
 export function atualizaProjeto(id, novosDados) {
+    // Procura o projeto pelo ID e atualiza seus dados se encontrado.
     const index = projects.findIndex(p => p.id === id);
     if (index > -1) {
         projects[index] = { ...projects[index], ...novosDados };
@@ -116,6 +125,7 @@ export function atualizaProjeto(id, novosDados) {
  * @returns {boolean} Retorna true se o projeto foi excluído.
  */
 export function excluiProjeto(id) {
+    // Remove o projeto do array pelo ID e também remove todas as tarefas associadas a ele.
     const projetoOriginal = projects.length;
     projects = projects.filter(p => p.id !== id);
     tasks = tasks.filter(t => t.projetoId !== id);
@@ -128,6 +138,7 @@ export function excluiProjeto(id) {
  * @returns {object|undefined} O projeto encontrado ou undefined.
  */
 export function getProjeto(id) {
+    // Busca e retorna o projeto com o ID fornecido.
     return projects.find(p => p.id === id);
 }
 
@@ -136,6 +147,7 @@ export function getProjeto(id) {
  * @returns {Array<object>} Uma cópia dos projetos.
  */
 export function getProjects() {
+    // Retorna uma cópia do array de projetos.
     return [...projects];
 }
 
@@ -149,6 +161,7 @@ export function getProjects() {
  * @param {number} id - O ID do projeto.
  */
 export function defineProjetoAtivo(id) {
+    // Define o ID do projeto ativo.
     currentProjectId = id;
 }
 
@@ -157,6 +170,7 @@ export function defineProjetoAtivo(id) {
  * @returns {number|null} O ID do projeto ativo.
  */
 export function getCurrentProjectId() {
+    // Retorna o ID do projeto atualmente ativo.
     return currentProjectId;
 }
 
@@ -165,6 +179,7 @@ export function getCurrentProjectId() {
  * @returns {Array<object>} As tarefas do projeto ativo.
  */
 export function getTarefasDoProjeto() {
+    // Retorna todas as tarefas que pertencem ao projeto ativo.
     return tasks.filter(t => t.projetoId === currentProjectId);
 }
 
@@ -174,6 +189,8 @@ export function getTarefasDoProjeto() {
  * @param {Array<object>} projetos - O array de projetos a ser carregado.
  */
 export function carregarDados(tarefas, projetos) {
+    // Substitui os arrays internos de tarefas e projetos pelos fornecidos.
+    // Atualiza os próximos IDs automáticos.
     tasks = [...tarefas];
     if (tarefas.length > 0) {
         nextTaskId = Math.max(...tarefas.map(t => t.id)) + 1;
@@ -182,5 +199,37 @@ export function carregarDados(tarefas, projetos) {
     projects = [...projetos];
     if (projetos.length > 0) {
         nextProjectId = Math.max(...projetos.map(p => p.id)) + 1;
+    }
+}
+
+// ===================================
+// Funções utilitárias para persistência
+// ===================================
+
+/**
+ * Substitui o array interno de tarefas.
+ * @param {Array<object>} newTasks - Novo array de tarefas.
+ */
+export function setTasks(newTasks) {
+    // Substitui o array de tarefas e atualiza o próximo ID.
+    tasks = [...newTasks];
+    if (tasks.length > 0) {
+        nextTaskId = Math.max(...tasks.map(t => t.id)) + 1;
+    } else {
+        nextTaskId = 0;
+    }
+}
+
+/**
+ * Substitui o array interno de projetos.
+ * @param {Array<object>} newProjects - Novo array de projetos.
+ */
+export function setProjects(newProjects) {
+    // Substitui o array de projetos e atualiza o próximo ID.
+    projects = [...newProjects];
+    if (projects.length > 0) {
+        nextProjectId = Math.max(...projects.map(p => p.id)) + 1;
+    } else {
+        nextProjectId = 0;
     }
 }

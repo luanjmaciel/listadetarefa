@@ -1,70 +1,60 @@
-// src/js/main.js
-
 /**
  * @fileoverview Ponto de entrada principal da aplicação.
  * @module main
  */
 
-import { carregaDados, salvaDados } from './storage.js';
-import { carregarDados, criaProjeto, defineProjetoAtivo, getProjects } from './model.js';
-import { renderizaProjetos, renderizaTarefas, defineProjetoAtivoNaUI } from './ui.js';
-import { logInfo } from './logger.js';
-
-// Importe todas as funções de UI para que elas possam ser acessadas no HTML
-import * as ui from './ui.js';
-window.ui = ui;
+import { carregaDados } from './storage.js';
+import { getProjects, getCurrentProjectId } from './model.js';
+import { renderizaProjetos, defineProjetoAtivoNaUI, showTaskModal, saveTask, closeModal, showProjectModal, saveProject, setFilter } from './ui.js';
 
 // Adiciona event listeners para os botões e modais
 function adicionarEventListeners() {
-    document.getElementById('add-task-btn').addEventListener('click', () => {
-        ui.showTaskModal();
-    });
-    document.getElementById('save-task-btn').addEventListener('click', ui.saveTask);
-    document.querySelector('#taskModal .close-btn').addEventListener('click', () => ui.closeModal('taskModal'));
+    const addTaskBtn = document.getElementById('add-task-btn');
+    if (addTaskBtn) addTaskBtn.addEventListener('click', () => showTaskModal());
 
-    document.getElementById('add-project-btn').addEventListener('click', () => ui.showProjectModal());
-    document.getElementById('save-project-btn').addEventListener('click', ui.saveProject);
-    document.querySelector('#projectModal .close-btn').addEventListener('click', () => ui.closeModal('projectModal'));
+    const saveTaskBtn = document.getElementById('save-task-btn');
+    if (saveTaskBtn) saveTaskBtn.addEventListener('click', saveTask);
 
-    document.getElementById('filter-all').addEventListener('click', () => ui.setFilter('all'));
-    document.getElementById('filter-pending').addEventListener('click', () => ui.setFilter('pending'));
-    document.getElementById('filter-completed').addEventListener('click', () => ui.setFilter('completed'));
+    const closeTaskBtn = document.querySelector('#taskModal .close-btn');
+    if (closeTaskBtn) closeTaskBtn.addEventListener('click', () => closeModal('taskModal'));
+
+    const addProjectBtn = document.getElementById('add-project-btn');
+    if (addProjectBtn) addProjectBtn.addEventListener('click', () => showProjectModal());
+
+    const saveProjectBtn = document.getElementById('save-project-btn');
+    if (saveProjectBtn) saveProjectBtn.addEventListener('click', saveProject);
+
+    const closeProjectBtn = document.querySelector('#projectModal .close-btn');
+    if (closeProjectBtn) closeProjectBtn.addEventListener('click', () => closeModal('projectModal'));
+
+    const filterAll = document.getElementById('filter-all');
+    if (filterAll) filterAll.addEventListener('click', () => setFilter('all'));
+
+    const filterPending = document.getElementById('filter-pending');
+    if (filterPending) filterPending.addEventListener('click', () => setFilter('pending'));
+
+    const filterCompleted = document.getElementById('filter-completed');
+    if (filterCompleted) filterCompleted.addEventListener('click', () => setFilter('completed'));
 }
 
 /**
  * Inicializa a aplicação.
  */
 function inicializaApp() {
-    logInfo('Iniciando a aplicação...');
-    
-    const dadosCarregados = carregaDados();
-    carregarDados(dadosCarregados.tasks, dadosCarregados.projects);
-    
-    const projetosExistentes = getProjects();
-    if (projetosExistentes.length === 0) {
-        logInfo('Nenhum projeto encontrado. Criando um projeto padrão "Caixa de Entrada".');
-        const projetoPadrao = criaProjeto({ nome: 'Caixa de Entrada', cor: 'blue' });
-        
-        salvaDados();
-
-        defineProjetoAtivo(projetoPadrao.id);
-    } else {
-        defineProjetoAtivo(projetosExistentes[0].id);
-    }
-    
-    adicionarEventListeners();
+    carregaDados();
     renderizaProjetos();
-    // CORREÇÃO: Removido a chamada redundante para renderizaTarefas().
-    // A função defineProjetoAtivoNaUI() já fará isso.
-    // renderizaTarefas(); 
-    
-    const projetosAtualizados = getProjects();
-    if (projetosAtualizados.length > 0) {
-        defineProjetoAtivoNaUI(projetosAtualizados[0].id);
+    const projetos = getProjects();
+    if (projetos.length > 0) {
+        if (!getCurrentProjectId()) {
+            defineProjetoAtivoNaUI(projetos[0].id);
+        } else {
+            defineProjetoAtivoNaUI(getCurrentProjectId());
+        }
     }
-
-    logInfo('Aplicação inicializada com sucesso.');
 }
 
 // Inicia a aplicação quando a página é carregada
-document.addEventListener('DOMContentLoaded', inicializaApp);
+document.addEventListener('DOMContentLoaded', () => {
+    inicializaApp();
+    adicionarEventListeners();
+});

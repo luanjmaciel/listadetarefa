@@ -6,6 +6,16 @@
     <title>Lista de Tarefas</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .filter-btn.active {
+            background-color: #27ae60 !important;
+            color: #fff !important;
+            border-color: #219150 !important;
+        }
+        .post-it-section {
+            margin-top: -30px !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -18,8 +28,8 @@
             </h1>
             
             <div id="projects-container">
-                </div>
-            <button class="add-task-btn" onclick="ui.showProjectModal()" aria-label="Adicionar novo projeto">
+            </div>
+            <button class="add-task-btn" id="add-project-btn" aria-label="Adicionar novo projeto">
                 <i class="fas fa-plus"></i> Adicionar Projeto
             </button>
         </section>
@@ -30,15 +40,15 @@
             </h1>
             
             <div class="filter-buttons">
-                <button class="filter-btn active" onclick="ui.setFilter('all')" aria-label="Mostrar todas as tarefas">Todos</button>
-                <button class="filter-btn" onclick="ui.setFilter('pending')" aria-label="Mostrar tarefas pendentes">Pendentes</button>
-                <button class="filter-btn" onclick="ui.setFilter('completed')" aria-label="Mostrar tarefas concluídas">Concluídos</button>
+                <button class="filter-btn active" id="filter-all" aria-label="Mostrar todas as tarefas">Todos</button>
+                <button class="filter-btn" id="filter-pending" aria-label="Mostrar tarefas pendentes">Pendentes</button>
+                <button class="filter-btn" id="filter-completed" aria-label="Mostrar tarefas concluídas">Concluídos</button>
             </div>
 
             <div id="tasks-container">
-                </div>
+            </div>
 
-            <button class="add-task-btn" onclick="ui.showTaskModal()" aria-label="Adicionar nova tarefa">
+            <button class="add-task-btn" id="add-task-btn" aria-label="Adicionar nova tarefa">
                 <i class="fas fa-plus"></i> Adicionar Tarefa
             </button>
         </section>
@@ -50,7 +60,7 @@
 
     <div id="taskModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
         <div class="modal-content">
-            <span class="close-btn" onclick="ui.closeModal('taskModal')" aria-label="Fechar">&times;</span>
+            <span class="close-btn" id="close-task-btn" aria-label="Fechar">&times;</span>
             <h2 id="task-modal-title">Editar Tarefa</h2>
             
             <form>
@@ -95,7 +105,7 @@
                 </div>
 
                 <div class="form-buttons">
-                    <button id="save-task-btn" type="button" onclick="ui.saveTask()">Salvar</button>
+                    <button id="save-task-btn" type="button">Salvar</button>
                 </div>
             </form>
         </div>
@@ -103,7 +113,7 @@
     
     <div id="projectModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="project-modal-title">
         <div class="modal-content">
-            <span class="close-btn" onclick="ui.closeModal('projectModal')" aria-label="Fechar">&times;</span>
+            <span class="close-btn" id="close-project-btn" aria-label="Fechar">&times;</span>
             <h2 id="project-modal-title">Adicionar Novo Projeto</h2>
             <form>
                 <div class="form-group">
@@ -121,7 +131,7 @@
                     </select>
                 </div>
                 <div class="form-buttons">
-                    <button id="save-project-btn" type="button" onclick="ui.saveProject()">Salvar Projeto</button>
+                    <button id="save-project-btn" type="button">Salvar Projeto</button>
                 </div>
             </form>
         </div>
