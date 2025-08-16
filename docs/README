@@ -1,7 +1,10 @@
  Professor,
 
+A aplicação de lista de tarefas é construída com um conjunto de arquivos modulares que trabalham juntos. O index.html fornece a estrutura da página, conectando a ela o style.css (para a aparência visual) e todos os módulos JavaScript. A lógica da aplicação é dividida entre o model.js, que gerencia os dados (tarefas e projetos), e o ui.js, que controla a interface do usuário, como a renderização de listas e a exibição de modais. A persistência dos dados é garantida pelo storage.js, que salva as informações no localStorage do navegador. Para auxiliar na depuração, o logger.js registra eventos e erros no console. Por fim, o main.js atua como o orquestrador, inicializando a aplicação, carregando os dados, configurando os eventos do usuário e coordenando a interação entre todos os outros módulos.
+
 A atividade foi concluída seguindo todas as diretrizes presentes no documento em PDF. Todas as pastas solicitadas foram adicionadas ao repositório conforme o planejado.
 
 Para facilitar o desenvolvimento e a análise, utilizei a extensão Live Server no VS Code, que me permitiu abrir o site em um servidor local para testes em tempo real.
 
 Fico à disposição para qualquer dúvida ou para discutirmos o projeto com mais detalhes.
+
